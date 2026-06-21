@@ -14,17 +14,17 @@ class WebCorsConfigTest {
     void configuresApiAndActuatorCorsMappings() throws Exception {
         TestCorsRegistry registry = new TestCorsRegistry();
         WebCorsConfig config = new WebCorsConfig(new UChatProperties(
-            "uChat",
-            "en",
-            List.of("http://localhost:5173", "http://127.0.0.1:5173"),
-            "/app",
-            "/user",
-            List.of("/topic", "/queue"),
-            "/chat.send",
-            "/ws",
-            "/app/chat.send",
-            "/user/queue/chat.messages",
-            "/user/queue/chat.errors"
+                "uChat",
+                "en",
+                List.of("http://localhost:5173", "http://127.0.0.1:5173"),
+                "/app",
+                "/user",
+                List.of("/topic", "/queue"),
+                "/chat.send",
+                "/ws",
+                "/app/chat.send",
+                "/user/queue/chat.messages",
+                "/user/queue/chat.errors"
         ));
 
         config.addCorsMappings(registry);

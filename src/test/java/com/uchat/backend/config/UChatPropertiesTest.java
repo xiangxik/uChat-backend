@@ -12,11 +12,11 @@ class UChatPropertiesTest {
         UChatProperties properties = new UChatProperties(
                 "uChat",
                 "en",
-            List.of("http://localhost:5173", "http://127.0.0.1:5173"),
-            "/app",
-            "/user",
-            List.of("/topic", "/queue"),
-            "/chat.send",
+                List.of("http://localhost:5173", "http://127.0.0.1:5173"),
+                "/app",
+                "/user",
+                List.of("/topic", "/queue"),
+                "/chat.send",
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
@@ -26,7 +26,7 @@ class UChatPropertiesTest {
         assertThat(properties.appName()).isEqualTo("uChat");
         assertThat(properties.defaultLocale()).isEqualTo("en");
         assertThat(properties.allowedOrigins())
-            .containsExactly("http://localhost:5173", "http://127.0.0.1:5173");
+                .containsExactly("http://localhost:5173", "http://127.0.0.1:5173");
         assertThat(properties.applicationDestinationPrefix()).isEqualTo("/app");
         assertThat(properties.userDestinationPrefix()).isEqualTo("/user");
         assertThat(properties.brokerDestinations()).containsExactly("/topic", "/queue");

@@ -36,6 +36,8 @@ Application starts on `http://localhost:8080`.
 
 ```bash
 curl http://localhost:8080/api/config
+curl "http://localhost:8080/api/config?locale=zh"
+curl -H "Accept-Language: zh-CN,zh;q=0.9" http://localhost:8080/api/config
 ```
 
 Example response:
@@ -44,12 +46,27 @@ Example response:
 {
   "appName": "uChat",
   "defaultLocale": "en",
+  "locale": "en",
+  "initialBotMessage": "Welcome to the uChat Enterprise Service Center. Tell us what you would like to ask and we will arrange a specialist to follow up.",
+  "messagePlaceholder": "For example: I want to learn about business loan options and eligibility",
+  "sendLabel": "Send message",
+  "tipText": "Note: Responses on this page are for demo purposes only. Please refer to official documents and human support for formal business matters.",
+  "thankYouText": "Thank you for your feedback",
+  "thinkingText": "Advisor is checking the details...",
+  "serviceCenterText": "Service Center",
+  "onlineText": "Online",
+  "ratingLabels": ["Poor", "Fair", "Good", "Very good", "Excellent"],
   "webSocketEndpoint": "/ws",
   "chatSendDestination": "/app/chat.send",
   "chatMessageSubscription": "/user/queue/chat.messages",
   "chatErrorSubscription": "/user/queue/chat.errors"
 }
 ```
+
+Note:
+- UI text fields in this response are sourced from backend i18n bundles under `src/main/resources/messages_en.properties` and `src/main/resources/messages_zh.properties`.
+- To adjust copy, update those message files instead of `application.yml`.
+- Locale resolution order is: query `locale` > `Accept-Language` header > backend `defaultLocale`.
 
 ### Submit feedback
 
@@ -62,7 +79,6 @@ curl -X POST http://localhost:8080/api/feedback \
 ### Health
 
 ```bash
-curl http://localhost:8080/api/health
 curl http://localhost:8080/actuator/health
 ```
 
@@ -92,6 +108,7 @@ curl http://localhost:8080/actuator/health
 ```json
 {
   "id": "generated-message-id",
+  "clientMessageId": "client-1",
   "conversationId": "conv-1",
   "sender": "bot",
   "content": "We can walk you through personal loans, mortgages, and SME financing. Share your budget range and I will suggest a direction first.",
@@ -105,6 +122,7 @@ curl http://localhost:8080/actuator/health
 {
   "code": "CHAT_BAD_REQUEST",
   "message": "Unsupported locale: fr",
+  "clientMessageId": "client-1",
   "timestamp": "2026-06-20T16:00:00Z"
 }
 ```
@@ -151,6 +169,9 @@ npm run dev -- --host 127.0.0.1
 ```bash
 /Volumes/NVME/github/xiangxik/uChat/uChat-backend/mvnw -f /Volumes/NVME/github/xiangxik/uChat/uChat-backend/pom.xml spring-boot:run
 ```
+- `Process terminated with exit code: 143` after `spring-boot:run`:
+  - This usually means the Java process received a termination signal (for example terminal cleanup or manual stop).
+  - It is expected when stopping a long-running dev server and does not indicate a code failure.
 - `Web server failed to start. Port 8080 was already in use`:
   - Stop the old process using port 8080, then restart backend.
 - Frontend shows `Chat response timed out`:
