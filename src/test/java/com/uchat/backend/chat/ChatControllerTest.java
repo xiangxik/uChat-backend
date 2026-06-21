@@ -46,7 +46,7 @@ class ChatControllerTest {
                 "Please type your question first.",
                 Instant.now()
         );
-        when(chatMessageApplicationService.createBotMessage(request)).thenReturn(generatedResponse);
+        when(chatMessageApplicationService.createBotMessage(request, "user-123")).thenReturn(generatedResponse);
 
         controller.send(request, principal, null);
 

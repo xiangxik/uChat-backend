@@ -23,7 +23,9 @@ public class MockChatReplyService implements ChatReplyService {
     );
 
     @Override
-    public String generateReply(String content, String locale) {
+    public String generateReply(ChatRequestContext requestContext) {
+        String content = requestContext.content();
+        String locale = requestContext.locale();
         String normalizedLocale = normalizeLocale(locale);
         String cleaned = content == null ? "" : content.trim();
         if (cleaned.isEmpty()) {

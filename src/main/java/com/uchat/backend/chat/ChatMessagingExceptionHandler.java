@@ -1,6 +1,7 @@
 package com.uchat.backend.chat;
 
 import com.uchat.backend.chat.dto.ChatErrorResponse;
+import com.uchat.backend.chat.service.LlmServiceException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Optional;
@@ -22,6 +23,28 @@ public class ChatMessagingExceptionHandler {
     public ChatMessagingExceptionHandler(ChatUserMessagingGateway chatUserMessagingGateway) {
         this.chatUserMessagingGateway = chatUserMessagingGateway;
     }
+
+        @MessageExceptionHandler(LlmServiceException.class)
+        public void handleLlmFailure(
+            LlmServiceException exception,
+            Principal principal,
+            @Header(name = "clientMessageId", required = false) String clientMessageId,
+            @Header(name = "simpSessionId", required = false) String sessionId
+        ) {
+        String principalName = principal != null ? principal.getName() : "anonymous";
+        String normalizedClientMessageId = normalizeClientMessageId(clientMessageId);
+        logger.warn("LLM chat failure for principal {} with code {}", principalName, exception.code());
+        chatUserMessagingGateway.sendChatError(
+            principalName,
+            new ChatErrorResponse(
+                exception.code(),
+                resolveLlmMessage(exception.code()),
+                normalizedClientMessageId,
+                Instant.now()
+            ),
+            sessionId
+        );
+        }
 
     @MessageExceptionHandler({IllegalArgumentException.class, MethodArgumentNotValidException.class})
         public void handleBadRequest(
@@ -71,5 +94,17 @@ public class ChatMessagingExceptionHandler {
                     .orElse("Invalid chat request.");
         }
         return exception.getMessage() == null ? "Invalid chat request." : exception.getMessage();
+    }
+
+    private String resolveLlmMessage(String code) {
+        return switch (code) {
+            case "CHAT_LLM_AUTH" -> "Chat service authentication failed.";
+            case "CHAT_LLM_RATE_LIMIT" -> "Chat service is busy. Please try again shortly.";
+            case "CHAT_LLM_TIMEOUT" -> "Chat service timed out. Please retry.";
+            case "CHAT_LLM_EMPTY" -> "Chat service returned an empty response.";
+            case "CHAT_LLM_PARSE_ERROR" -> "Chat service returned an invalid response.";
+            case "CHAT_LLM_UPSTREAM" -> "Chat service is temporarily unavailable.";
+            default -> "Unable to process chat request.";
+        };
     }
 }

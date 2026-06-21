@@ -28,3 +28,16 @@ uchat:
   chat-send-destination: /app/chat.send
   chat-message-subscription: /user/queue/chat.messages
   chat-error-subscription: /user/queue/chat.errors
+  llm:
+    enabled: true
+    provider: minimax
+    base-url: https://api.minimax.io/v1
+    api-key: ${MINIMAX_KEY:}
+    model: MiniMax-M3
+    temperature: 0.4
+    max-tokens: 1000
+    timeout-ms: 20000
+    max-retries: 1
+    retry-backoff-ms: 300
+    context-window: 10
+    system-prompt: You are uChat's enterprise service assistant. Reply clearly and concisely in the user's language.

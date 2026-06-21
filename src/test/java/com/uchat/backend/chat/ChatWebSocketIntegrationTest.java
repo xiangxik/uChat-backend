@@ -29,7 +29,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.MimeTypeUtils;
 
-@SpringBootTest
+@SpringBootTest(properties = "uchat.llm.enabled=false")
 class ChatWebSocketIntegrationTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -102,6 +102,27 @@ class ChatWebSocketIntegrationTest {
         ChatErrorResponse error = readPayload(brokerMessage, ChatErrorResponse.class);
         assertThat(error.code()).isEqualTo("CHAT_BAD_REQUEST");
         assertThat(error.message()).contains("locale must be zh or en");
+    }
+
+    @Test
+    void correlatesConcurrentRequestsByClientMessageId() throws Exception {
+        String sessionId = "session-concurrent";
+        String principalName = "user-concurrent";
+
+        sendChatMessage(sessionId, principalName, "conv-it-3", "client-it-3a", "loan", "en");
+        sendChatMessage(sessionId, principalName, "conv-it-3", "client-it-3b", "account", "en");
+
+        Message<?> first = pollMessage(message -> hasSessionId(message, sessionId));
+        Message<?> second = pollMessage(message -> hasSessionId(message, sessionId));
+
+        assertThat(first).isNotNull();
+        assertThat(second).isNotNull();
+
+        ChatMessageResponse response1 = readPayload(first, ChatMessageResponse.class);
+        ChatMessageResponse response2 = readPayload(second, ChatMessageResponse.class);
+
+        assertThat(java.util.Set.of(response1.clientMessageId(), response2.clientMessageId()))
+                .containsExactlyInAnyOrder("client-it-3a", "client-it-3b");
     }
 
     private void sendChatMessage(

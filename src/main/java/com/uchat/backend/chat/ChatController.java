@@ -35,10 +35,10 @@ public class ChatController {
             Principal principal,
             @Header(name = "simpSessionId", required = false) String sessionId
     ) {
-        logger.info("Chat request received for conversation {} from principal {}",
-                request.conversationId(), principal != null ? principal.getName() : "anonymous");
-        ChatMessageResponse response = chatMessageApplicationService.createBotMessage(request);
         String principalName = principal != null ? principal.getName() : "anonymous";
+        logger.info("Chat request received for conversation {} from principal {}",
+                request.conversationId(), principalName);
+        ChatMessageResponse response = chatMessageApplicationService.createBotMessage(request, principalName);
         chatUserMessagingGateway.sendChatMessage(principalName, response, sessionId);
         logger.info("Chat response generated for conversation {} with message {}",
                 request.conversationId(), response.id());

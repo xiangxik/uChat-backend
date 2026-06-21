@@ -23,7 +23,8 @@ class ConfigControllerTest {
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
-                "/user/queue/chat.errors"
+                "/user/queue/chat.errors",
+                llmProperties()
         );
         StaticMessageSource messageSource = new StaticMessageSource();
         registerMessages(messageSource);
@@ -62,7 +63,8 @@ class ConfigControllerTest {
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
-                "/user/queue/chat.errors"
+                "/user/queue/chat.errors",
+                llmProperties()
         );
         StaticMessageSource messageSource = new StaticMessageSource();
         registerMessages(messageSource);
@@ -95,7 +97,8 @@ class ConfigControllerTest {
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
-                "/user/queue/chat.errors"
+                "/user/queue/chat.errors",
+                llmProperties()
         );
         StaticMessageSource messageSource = new StaticMessageSource();
         registerMessages(messageSource);
@@ -120,7 +123,8 @@ class ConfigControllerTest {
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
-                "/user/queue/chat.errors"
+                "/user/queue/chat.errors",
+                llmProperties()
         );
         StaticMessageSource messageSource = new StaticMessageSource();
         registerMessages(messageSource);
@@ -166,4 +170,21 @@ class ConfigControllerTest {
         messageSource.addMessage("uchat.ui.ratingLabel.4", Locale.ENGLISH, "Very good");
         messageSource.addMessage("uchat.ui.ratingLabel.5", Locale.ENGLISH, "Excellent");
     }
+
+        private UChatProperties.LlmProperties llmProperties() {
+                return new UChatProperties.LlmProperties(
+                                true,
+                                "openai",
+                                "https://api.openai.com",
+                                "test-key",
+                                "gpt-4.1-mini",
+                                0.4,
+                                1000,
+                                20000,
+                                1,
+                                300,
+                                10,
+                                "system"
+                );
+        }
 }

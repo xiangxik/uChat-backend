@@ -24,7 +24,21 @@ class WebCorsConfigTest {
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
-                "/user/queue/chat.errors"
+                "/user/queue/chat.errors",
+                new UChatProperties.LlmProperties(
+                    true,
+                    "openai",
+                    "https://api.openai.com",
+                    "test-key",
+                    "gpt-4.1-mini",
+                    0.4,
+                    1000,
+                    20000,
+                    1,
+                    300,
+                    10,
+                    "system"
+                )
         ));
 
         config.addCorsMappings(registry);

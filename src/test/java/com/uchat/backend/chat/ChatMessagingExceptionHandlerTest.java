@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.uchat.backend.chat.dto.ChatErrorResponse;
+import com.uchat.backend.chat.service.LlmServiceException;
 import java.security.Principal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,4 +74,52 @@ class ChatMessagingExceptionHandlerTest {
         assertThat(payload.message()).isEqualTo("Unable to process chat request.");
         assertThat(payload.clientMessageId()).isEqualTo("client-2");
     }
+
+    @Test
+    void mapsLlmRateLimitFailureToStableErrorPayload() {
+        Principal principal = () -> "user-3";
+
+        handler.handleLlmFailure(
+                new LlmServiceException("CHAT_LLM_RATE_LIMIT", "rate limited"),
+                principal,
+                "client-3",
+                "session-3"
+        );
+
+        ArgumentCaptor<ChatErrorResponse> payloadCaptor = ArgumentCaptor.forClass(ChatErrorResponse.class);
+        verify(chatUserMessagingGateway).sendChatError(
+                eq("user-3"),
+                payloadCaptor.capture(),
+                eq("session-3")
+        );
+
+        ChatErrorResponse payload = payloadCaptor.getValue();
+        assertThat(payload.code()).isEqualTo("CHAT_LLM_RATE_LIMIT");
+        assertThat(payload.message()).isEqualTo("Chat service is busy. Please try again shortly.");
+        assertThat(payload.clientMessageId()).isEqualTo("client-3");
+    }
+
+        @Test
+        void mapsLlmAuthFailureToStableErrorPayload() {
+                Principal principal = () -> "user-4";
+
+                handler.handleLlmFailure(
+                                new LlmServiceException("CHAT_LLM_AUTH", "missing key"),
+                                principal,
+                                "client-4",
+                                "session-4"
+                );
+
+                ArgumentCaptor<ChatErrorResponse> payloadCaptor = ArgumentCaptor.forClass(ChatErrorResponse.class);
+                verify(chatUserMessagingGateway).sendChatError(
+                                eq("user-4"),
+                                payloadCaptor.capture(),
+                                eq("session-4")
+                );
+
+                ChatErrorResponse payload = payloadCaptor.getValue();
+                assertThat(payload.code()).isEqualTo("CHAT_LLM_AUTH");
+                assertThat(payload.message()).isEqualTo("Chat service authentication failed.");
+                assertThat(payload.clientMessageId()).isEqualTo("client-4");
+        }
 }

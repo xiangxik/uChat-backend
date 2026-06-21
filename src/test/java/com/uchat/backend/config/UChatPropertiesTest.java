@@ -20,7 +20,21 @@ class UChatPropertiesTest {
                 "/ws",
                 "/app/chat.send",
                 "/user/queue/chat.messages",
-                "/user/queue/chat.errors"
+                "/user/queue/chat.errors",
+                new UChatProperties.LlmProperties(
+                    true,
+                    "openai",
+                    "https://api.openai.com",
+                    "test-key",
+                    "gpt-4.1-mini",
+                    0.4,
+                    1000,
+                    20000,
+                    1,
+                    300,
+                    10,
+                    "system"
+                )
         );
 
         assertThat(properties.appName()).isEqualTo("uChat");
@@ -35,5 +49,8 @@ class UChatPropertiesTest {
         assertThat(properties.chatSendDestination()).isEqualTo("/app/chat.send");
         assertThat(properties.chatMessageSubscription()).isEqualTo("/user/queue/chat.messages");
         assertThat(properties.chatErrorSubscription()).isEqualTo("/user/queue/chat.errors");
+        assertThat(properties.llm().enabled()).isTrue();
+        assertThat(properties.llm().provider()).isEqualTo("openai");
+        assertThat(properties.llm().contextWindow()).isEqualTo(10);
     }
 }

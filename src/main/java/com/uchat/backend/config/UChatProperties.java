@@ -15,6 +15,23 @@ public record UChatProperties(
         String websocketEndpoint,
         String chatSendDestination,
         String chatMessageSubscription,
-        String chatErrorSubscription
+        String chatErrorSubscription,
+        LlmProperties llm
 ) {
+
+    public record LlmProperties(
+            boolean enabled,
+            String provider,
+            String baseUrl,
+            String apiKey,
+            String model,
+            double temperature,
+            int maxTokens,
+            int timeoutMs,
+            int maxRetries,
+            int retryBackoffMs,
+            int contextWindow,
+            String systemPrompt
+    ) {
+    }
 }
