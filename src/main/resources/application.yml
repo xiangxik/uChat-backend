@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: uchat-backend
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+uchat:
+  app-name: uChat
+  default-locale: en
+  allowed-origins:
+    - http://localhost:5173
+    - http://127.0.0.1:5173
+  application-destination-prefix: /app
+  user-destination-prefix: /user
+  broker-destinations:
+    - /topic
+    - /queue
+  chat-send-mapping: /chat.send
+  websocket-endpoint: /ws
+  chat-send-destination: /app/chat.send
+  chat-message-subscription: /user/queue/chat.messages
+  chat-error-subscription: /user/queue/chat.errors
