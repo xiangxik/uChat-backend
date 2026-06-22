@@ -1,10 +1,13 @@
 package com.uchat.backend.common;
 
 import java.time.Instant;
+import java.util.List;
 
 public record ApiErrorResponse(
-        String code,
+        ApiErrorCode code,
         String message,
-        Instant timestamp
+        Instant timestamp,
+        String path,
+        List<String> details
 ) {
 }
