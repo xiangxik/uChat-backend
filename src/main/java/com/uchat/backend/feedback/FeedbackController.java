@@ -16,10 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class FeedbackController {
 
     private static final Logger logger = LoggerFactory.getLogger(FeedbackController.class);
+    private final FeedbackStore feedbackStore;
+
+    public FeedbackController(FeedbackStore feedbackStore) {
+        this.feedbackStore = feedbackStore;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public FeedbackResponse submit(@Valid @RequestBody FeedbackRequest request) {
+        feedbackStore.saveFeedback(request.messageId(), request.rating());
         logger.info("Received feedback for message {} with rating {}", request.messageId(), request.rating());
         return new FeedbackResponse("accepted", "Feedback received.", Instant.now());
     }

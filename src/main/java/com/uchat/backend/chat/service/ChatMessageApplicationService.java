@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 public class ChatMessageApplicationService {
 
     private final ChatReplyService chatReplyService;
-    private final InMemoryConversationHistoryStore historyStore;
+    private final ConversationHistoryStore historyStore;
     private final int contextWindow;
 
     public ChatMessageApplicationService(
             ChatReplyService chatReplyService,
-            InMemoryConversationHistoryStore historyStore,
+        ConversationHistoryStore historyStore,
             com.uchat.backend.config.UChatProperties properties
     ) {
         this.chatReplyService = chatReplyService;
@@ -31,12 +31,12 @@ public class ChatMessageApplicationService {
                 principalName,
                 request.content(),
                 locale,
-                historyStore.recentTurns(request.conversationId(), contextWindow)
+                historyStore.recentTurns(principalName, request.conversationId(), contextWindow)
         );
         String reply = chatReplyService.generateReply(requestContext);
 
-        historyStore.appendUserTurn(request.conversationId(), request.content());
-        historyStore.appendBotTurn(request.conversationId(), reply);
+            historyStore.appendUserTurn(principalName, request.conversationId(), request.content());
+            historyStore.appendBotTurn(principalName, request.conversationId(), reply);
 
         return new ChatMessageResponse(
                 UUID.randomUUID().toString(),

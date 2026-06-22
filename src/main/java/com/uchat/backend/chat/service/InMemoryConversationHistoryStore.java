@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InMemoryConversationHistoryStore {
+@ConditionalOnProperty(prefix = "uchat.storage", name = "provider", havingValue = "in-memory", matchIfMissing = true)
+public class InMemoryConversationHistoryStore implements ConversationHistoryStore {
 
     private final Map<String, Deque<ChatRequestContext.ConversationTurn>> conversationTurns = new ConcurrentHashMap<>();
     private final int maxTurns;
@@ -19,8 +21,8 @@ public class InMemoryConversationHistoryStore {
         this.maxTurns = Math.max(1, Math.min(properties.llm().contextWindow() * 2, 40));
     }
 
-    public List<ChatRequestContext.ConversationTurn> recentTurns(String conversationId, int historyWindow) {
-        Deque<ChatRequestContext.ConversationTurn> turns = conversationTurns.get(conversationId);
+    public List<ChatRequestContext.ConversationTurn> recentTurns(String principalName, String conversationId, int historyWindow) {
+        Deque<ChatRequestContext.ConversationTurn> turns = conversationTurns.get(historyKey(principalName, conversationId));
         if (turns == null || turns.isEmpty()) {
             return List.of();
         }
@@ -33,25 +35,29 @@ public class InMemoryConversationHistoryStore {
         return List.copyOf(snapshot.subList(snapshot.size() - effectiveWindow, snapshot.size()));
     }
 
-    public void appendUserTurn(String conversationId, String content) {
-        appendTurn(conversationId, "user", content);
+    public void appendUserTurn(String principalName, String conversationId, String content) {
+        appendTurn(principalName, conversationId, "user", content);
     }
 
-    public void appendBotTurn(String conversationId, String content) {
-        appendTurn(conversationId, "assistant", content);
+    public void appendBotTurn(String principalName, String conversationId, String content) {
+        appendTurn(principalName, conversationId, "assistant", content);
     }
 
-    private void appendTurn(String conversationId, String role, String content) {
+    private void appendTurn(String principalName, String conversationId, String role, String content) {
         if (conversationId == null || conversationId.isBlank() || content == null || content.isBlank()) {
             return;
         }
 
         Deque<ChatRequestContext.ConversationTurn> turns =
-                conversationTurns.computeIfAbsent(conversationId, key -> new ConcurrentLinkedDeque<>());
+                conversationTurns.computeIfAbsent(historyKey(principalName, conversationId), key -> new ConcurrentLinkedDeque<>());
         turns.addLast(new ChatRequestContext.ConversationTurn(role, content));
 
         while (turns.size() > maxTurns) {
             turns.pollFirst();
         }
+    }
+
+    private String historyKey(String principalName, String conversationId) {
+        return (principalName == null ? "" : principalName.trim()) + "::" + conversationId.trim();
     }
 }

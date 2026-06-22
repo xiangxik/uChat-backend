@@ -12,13 +12,13 @@ class InMemoryConversationHistoryStoreTest {
     void returnsOnlyMostRecentTurnsWithinWindow() {
         InMemoryConversationHistoryStore store = new InMemoryConversationHistoryStore(properties(2));
 
-        store.appendUserTurn("conv-1", "u1");
-        store.appendBotTurn("conv-1", "b1");
-        store.appendUserTurn("conv-1", "u2");
-        store.appendBotTurn("conv-1", "b2");
-        store.appendUserTurn("conv-1", "u3");
+        store.appendUserTurn("user-1", "conv-1", "u1");
+        store.appendBotTurn("user-1", "conv-1", "b1");
+        store.appendUserTurn("user-1", "conv-1", "u2");
+        store.appendBotTurn("user-1", "conv-1", "b2");
+        store.appendUserTurn("user-1", "conv-1", "u3");
 
-        List<ChatRequestContext.ConversationTurn> turns = store.recentTurns("conv-1", 3);
+        List<ChatRequestContext.ConversationTurn> turns = store.recentTurns("user-1", "conv-1", 3);
 
         assertThat(turns).hasSize(3);
         assertThat(turns.get(0).content()).isEqualTo("u2");

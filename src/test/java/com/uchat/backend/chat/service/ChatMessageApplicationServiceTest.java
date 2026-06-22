@@ -23,7 +23,7 @@ class ChatMessageApplicationServiceTest {
     private ChatReplyService chatReplyService;
 
     @Mock
-    private InMemoryConversationHistoryStore historyStore;
+        private ConversationHistoryStore historyStore;
 
     private ChatMessageApplicationService service;
 
@@ -66,7 +66,7 @@ class ChatMessageApplicationServiceTest {
                 new ChatRequestContext.ConversationTurn("user", "hello"),
                 new ChatRequestContext.ConversationTurn("assistant", "hi")
         );
-        when(historyStore.recentTurns("conv-1", 3)).thenReturn(history);
+        when(historyStore.recentTurns("user-1", "conv-1", 3)).thenReturn(history);
         when(chatReplyService.generateReply(org.mockito.ArgumentMatchers.any(ChatRequestContext.class)))
                 .thenReturn("reply text");
 
@@ -82,8 +82,8 @@ class ChatMessageApplicationServiceTest {
         assertThat(context.locale()).isEqualTo("en");
         assertThat(context.history()).containsExactlyElementsOf(history);
 
-        verify(historyStore).appendUserTurn("conv-1", "Need a loan");
-        verify(historyStore).appendBotTurn("conv-1", "reply text");
+        verify(historyStore).appendUserTurn("user-1", "conv-1", "Need a loan");
+        verify(historyStore).appendBotTurn("user-1", "conv-1", "reply text");
 
         assertThat(response.clientMessageId()).isEqualTo("client-1");
         assertThat(response.conversationId()).isEqualTo("conv-1");

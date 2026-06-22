@@ -30,6 +30,43 @@ Application starts on `http://localhost:8080`.
 ./mvnw test
 ```
 
+## Storage provider
+
+Backend uses a shared storage provider switch for persistence-related modules.
+
+- `uchat.storage.provider=in-memory` (default): chat history + feedback use in-memory stores.
+- `uchat.storage.provider=postgres`: chat history + feedback are persisted into PostgreSQL.
+
+Configure in [src/main/resources/application.yml](src/main/resources/application.yml):
+
+```yaml
+uchat:
+  storage:
+    provider: in-memory
+```
+
+### PostgreSQL mode
+
+Use the `postgres` profile (which sets `uchat.storage.provider=postgres`) and provide datasource variables:
+
+```bash
+export SPRING_DATASOURCE_URL='jdbc:postgresql://127.0.0.1:5432/uchat'
+export SPRING_DATASOURCE_USERNAME='postgres'
+export SPRING_DATASOURCE_PASSWORD='postgres'
+```
+
+Then start backend:
+
+```bash
+cd /Volumes/NVME/github/xiangxik/uChat/uChat-backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
+```
+
+Flyway migrations are auto-applied on startup and create:
+
+- `chat_history_turns`
+- `feedback_entries`
+
 ## REST endpoints
 
 ### Get frontend config

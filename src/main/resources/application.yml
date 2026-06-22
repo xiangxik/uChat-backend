@@ -1,6 +1,12 @@
 spring:
   application:
     name: uchat-backend
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
+  flyway:
+    enabled: true
 
 management:
   endpoints:
@@ -28,6 +34,8 @@ uchat:
   chat-send-destination: /app/chat.send
   chat-message-subscription: /user/queue/chat.messages
   chat-error-subscription: /user/queue/chat.errors
+  storage:
+    provider: in-memory
   llm:
     enabled: true
     provider: minimax
